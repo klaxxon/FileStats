@@ -60,10 +60,18 @@ func byteHistogram() {
 }
 
 func main() {
-	fmt.Println("File Statistics")
-	fn := os.Args[1]
+	var f *os.File
+	var err error
 
-	f, err := os.OpenFile(fn, os.O_RDONLY, 0)
+	fmt.Println("File Statistics")
+
+	fn := "/dev/stdin"
+	if len(os.Args) == 2 {
+		fn = os.Args[1]
+		f, err = os.Open(fn)
+	} else {
+		f = os.Stdin
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
