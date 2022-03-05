@@ -20,7 +20,7 @@ func bitAnalysis() {
 	fmt.Printf("\nBit 0 count %d or %0.3f%% and bit 1 count %d or %0.3f%%\n", 8*totalBytes-bitOneCount, 100.0*float64(8*totalBytes-bitOneCount)/float64(totalBytes*8), bitOneCount, 100.0*float64(bitOneCount)/float64(totalBytes*8))
 	fmt.Println("\nCounts by bit")
 	for a := 0; a < 8; a++ {
-		fmt.Printf("%02X = %d  %0.3f%%\n", 1<<a, bitCounts[a], 100.0*float64(bitCounts[a])/float64(4*totalBytes))
+		fmt.Printf("%02X = %8d  %0.3f%%\n", 1<<a, bitCounts[a], 100.0*float64(bitCounts[a])/float64(4*totalBytes))
 	}
 	fmt.Println()
 
