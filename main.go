@@ -6,6 +6,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"strings"
 )
 
 var totalBytes uint64
@@ -16,11 +17,18 @@ var bitCounts [8]uint64
 var byteCounts []uint64
 var maxByteValue uint64 // What is the largest value in the byteCounts array?
 
+// getTextSpan returns a text representation of percent of ln characters #############-----------
+func getTextSpan(perc float64, ln int) string {
+	x := int(((perc / 100.0) + 0.005) * float64(ln))
+	return strings.Repeat("#", x) + strings.Repeat("-", ln-x)
+}
+
 func bitAnalysis() {
 	fmt.Printf("\nBit 0 count %d or %0.3f%% and bit 1 count %d or %0.3f%%\n", 8*totalBytes-bitOneCount, 100.0*float64(8*totalBytes-bitOneCount)/float64(totalBytes*8), bitOneCount, 100.0*float64(bitOneCount)/float64(totalBytes*8))
 	fmt.Println("\nCounts by bit")
 	for a := 0; a < 8; a++ {
-		fmt.Printf("%02X = %8d  %0.3f%%\n", 1<<a, bitCounts[a], 100.0*float64(bitCounts[a])/float64(4*totalBytes))
+		perc := 100.0 * float64(bitCounts[a]) / float64(4*totalBytes)
+		fmt.Printf("%02X = %8d  %6.3f%%  %s\n", 1<<a, bitCounts[a], perc, getTextSpan(perc, 50))
 	}
 	fmt.Println()
 
@@ -30,7 +38,8 @@ func bitAnalysis() {
 		if bitLengthCounts[a] == 0 {
 			continue
 		}
-		fmt.Printf("     %2d     %8d    %0.3f%%\n", a+1, bitLengthCounts[a], 100.0*float64(bitLengthCounts[a])/float64(totalBytes*4))
+		perc := 100.0 * float64(bitLengthCounts[a]) / float64(totalBytes*8)
+		fmt.Printf("     %2d     %8d    %6.3f%%  %s\n", a+1, bitLengthCounts[a], perc, getTextSpan(perc, 50))
 	}
 	fmt.Println()
 }
