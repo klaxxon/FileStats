@@ -7,3 +7,7 @@ Provides counts by byte value, a histogram by byte value and the bit distributio
 <h2>A pseudo random file</h2>
 
 ![random source](/random.png)
+
+<h2>War and Peace</h2>
+
+![random source](/war_and_peace.png)
