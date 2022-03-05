@@ -12,7 +12,8 @@ import (
 var totalBytes uint64
 var maxBitLength uint64
 var bitOneCount uint64
-var bitLengthCounts [32]uint64
+var bitRunCount uint64
+var bitRunSizes [32]uint64
 var bitCounts [8]uint64
 var byteCounts []uint64
 var maxByteValue uint64 // What is the largest value in the byteCounts array?
@@ -25,6 +26,7 @@ func getTextSpan(perc float64, ln int) string {
 
 func bitAnalysis() {
 	fmt.Printf("\nBit 0 count %d or %0.3f%% and bit 1 count %d or %0.3f%%\n", 8*totalBytes-bitOneCount, 100.0*float64(8*totalBytes-bitOneCount)/float64(totalBytes*8), bitOneCount, 100.0*float64(bitOneCount)/float64(totalBytes*8))
+	fmt.Printf("Total number of runs: %d or %0.3f%%\n", bitRunCount, 100.0*float64(bitRunCount)/float64(totalBytes*8))
 	fmt.Println("\nCounts by bit")
 	for a := 0; a < 8; a++ {
 		perc := 100.0 * float64(bitCounts[a]) / float64(4*totalBytes)
@@ -32,14 +34,14 @@ func bitAnalysis() {
 	}
 	fmt.Println()
 
-	fmt.Println("\nCounts by bit span, example 01100001 has 2 of length 1, 1 of length 2 and 1 of length 4")
-	fmt.Println("Span length    Count       %")
+	fmt.Println("\nCounts by bit runs, example 01100001 has 2 runs of length 1, 1 run of length 2 and 1 run of length 4")
+	fmt.Println("Run length    Count       %")
 	for a := 0; a < 32; a++ {
-		if bitLengthCounts[a] == 0 {
+		if bitRunSizes[a] == 0 {
 			continue
 		}
-		perc := 100.0 * float64(bitLengthCounts[a]) / float64(totalBytes*8)
-		fmt.Printf("     %2d     %8d    %6.3f%%  %s\n", a+1, bitLengthCounts[a], perc, getTextSpan(perc, 50))
+		perc := 100.0 * float64(bitRunSizes[a]) / float64(totalBytes*8)
+		fmt.Printf("     %2d     %8d    %6.3f%%  %s\n", a+1, bitRunSizes[a], perc, getTextSpan(perc, 50))
 	}
 	fmt.Println()
 }
@@ -116,7 +118,8 @@ func main() {
 			if b&128 == 128 {
 				bitOneCount++
 				bitCounts[7-a]++
-				if 0 == lastBit {
+				if lastBit == 0 {
+					bitRunCount++
 					if bitSpanCount > 32 {
 						if bitSpanCount > int(maxBitLength) {
 							maxBitLength = uint64(bitSpanCount)
@@ -124,19 +127,20 @@ func main() {
 						bitSpanCount = 32
 					}
 					if bitSpanCount > 0 {
-						bitLengthCounts[bitSpanCount-1]++
+						bitRunSizes[bitSpanCount-1]++
 					}
 					bitSpanCount = 0
 					lastBit = 1
 				}
 			} else if lastBit == 1 {
+				bitRunCount++
 				if bitSpanCount > 32 {
 					if bitSpanCount > int(maxBitLength) {
 						maxBitLength = uint64(bitSpanCount)
 					}
 					bitSpanCount = 32
 				}
-				bitLengthCounts[bitSpanCount-1]++
+				bitRunSizes[bitSpanCount-1]++
 				bitSpanCount = 0
 				lastBit = 0
 			}
@@ -150,7 +154,7 @@ func main() {
 		}
 		bitSpanCount = 32
 	}
-	bitLengthCounts[bitSpanCount-1]++
+	bitRunSizes[bitSpanCount-1]++
 
 	for a := 0; a < 256; a++ {
 		if byteCounts[a] > maxByteValue {
